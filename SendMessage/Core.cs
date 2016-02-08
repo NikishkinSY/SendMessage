@@ -11,7 +11,8 @@ namespace SendMessage
     public static class Core
     {
         static ConcurrentBag<Modem> Modems { get; set; }
-        static ConcurrentBag<SMS> SMSes { get; set; }
+        //static ConcurrentBag<MailBox> MailBoxs { get; set; }
+        static ConcurrentBag<Contact> Contacts { get; set; }
         //add calls
         /// <summary>
         /// All event from send messgae service
@@ -27,33 +28,33 @@ namespace SendMessage
         static Core()
         {
             Modems = new ConcurrentBag<Modem>();
-            SMSes = new ConcurrentBag<SMS>();
+            Contacts = new ConcurrentBag<Contact>();
             SMSNotices = new ConcurrentQueue<SMSNotice>();
 
             AutoMapper.Mapper.CreateMap<Modem, ModemElement>();
             AutoMapper.Mapper.CreateMap<COMPort, COMPortElement>();
             AutoMapper.Mapper.CreateMap<ModemElement, Modem>();
             AutoMapper.Mapper.CreateMap<COMPortElement, COMPort>();
-            AutoMapper.Mapper.CreateMap<SMS, SMSElement>();
-            AutoMapper.Mapper.CreateMap<SMSElement, SMS>();
+            AutoMapper.Mapper.CreateMap<Contact, ContactElement>();
+            AutoMapper.Mapper.CreateMap<ContactElement, Contact>();
         }
 
         static void Init()
         {
             //init config
             SendMessageConfig.Init();
-            var modems = AutoMapper.Mapper.Map<IEnumerable<ModemElement>, List<Modem>>(SendMessageConfig.Settings.GSM.Modems.Cast<ModemElement>());
-            var smses = AutoMapper.Mapper.Map<IEnumerable<SMSElement>, List<SMS>>(SendMessageConfig.Settings.GSM.SMSes.Cast<SMSElement>());
+            var modems = AutoMapper.Mapper.Map<IEnumerable<ModemElement>, List<Modem>>(SendMessageConfig.Settings.Modems.Cast<ModemElement>());
+            var contacts = AutoMapper.Mapper.Map<IEnumerable<ContactElement>, List<Contact>>(SendMessageConfig.Settings.Contacts.Cast<ContactElement>());
             foreach (Modem modem in modems)
             {
                 //add event handler
                 modem.OnEvent += OnEvent;
                 Modems.Add(modem);                
             }
-            foreach (SMS sms in smses)
-                SMSes.Add(sms);
             //add mailboxes
-            //add emails
+            foreach (Contact contact in contacts)
+                Contacts.Add(contact);
+            
         }
 
         private static void OnEvent(object sender, SendMessageEventArgs e)
@@ -90,9 +91,9 @@ namespace SendMessage
         public static IEnumerable<Notice> SendMessage(string message)
         {
             List<Notice> notices = new List<Notice>();
-            foreach (SMS sms in SMSes)
+            foreach (Contact contact in Contacts)
             {
-                SMSNotice smsNotice = new SMSNotice(message, sms);
+                SMSNotice smsNotice = new SMSNotice(message, contact);
                 notices.Add(smsNotice);
                 SMSNotices.Enqueue(smsNotice);
             }

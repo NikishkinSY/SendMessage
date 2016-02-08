@@ -5,21 +5,21 @@ using System.Text;
 
 namespace SendMessage
 {
-    internal interface INotice
+    public interface INotice
     {
         string Message { get; set; }
-        IReceiver Receiver { get; set; }
+        Contact Contact { get; set; }
         NoticeType Type { get; }
     }
     public class Notice: INotice
     {
         public string Message { get; set; }
-        public IReceiver Receiver { get; set; }
+        public Contact Contact { get; set; }
         public virtual NoticeType Type { get; }
 
         public override string ToString()
         {
-            return String.Format("Type:{0}, Receiver:({1}), Message:{2}", Type, Receiver, Message);
+            return String.Format("Type:{0}, Contact:({1}), Message:{2}", Type, Contact, Message);
         }
     }
 
@@ -27,10 +27,10 @@ namespace SendMessage
     {
         public override NoticeType Type { get { return NoticeType.SMS; } }
 
-        internal SMSNotice(string message, SMS sms)
+        internal SMSNotice(string message, Contact contact)
         {
             this.Message = message;
-            this.Receiver = sms;
+            this.Contact = contact;
         }
     }
     //public class EmailNotice : Notice
@@ -47,6 +47,7 @@ namespace SendMessage
     public enum NoticeType
     {
         SMS,
-        Email
+        Email,
+        Call
     }
 }

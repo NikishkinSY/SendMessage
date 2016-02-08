@@ -74,7 +74,7 @@ namespace SendMessage
         public override bool SendMessage(Notice notice)
         {
             //string UTF16Message = RussiaLanguage.ConvertRusToUCS2(notice.Message);
-            SendATCommands(ATCommand.SMSMessage(notice.Receiver.Address, notice.Message, this.WaitForATCommand, this.TimesToRepeatATCommand));
+            SendATCommands(ATCommand.SMSMessage(notice.Contact.PhoneNumber, notice.Message, this.WaitForATCommand, this.TimesToRepeatATCommand));
             RiseEvent(this, new SendMessageEventArgs(EventType.Tx, MessageType.SMS, "message sent", notice));
             return true;
         }

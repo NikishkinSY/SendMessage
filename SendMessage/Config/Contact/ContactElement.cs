@@ -15,7 +15,7 @@ namespace SendMessage
             set { this["Description"] = value; }
         }
 
-        [ConfigurationProperty("PhoneNumber")]
+        [ConfigurationProperty("PhoneNumber", DefaultValue = "+79000000000")]
         [RegexStringValidator(@"\+(\d{11})")]
         public string PhoneNumber
         {
@@ -23,12 +23,19 @@ namespace SendMessage
             set { this["PhoneNumber"] = value; }
         }
 
-        [ConfigurationProperty("Email")]
+        [ConfigurationProperty("Email", DefaultValue = "test@test.ru")]
         [RegexStringValidator(@"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z")]
         public string Email
         {
             get { return (string)this["Email"]; }
             set { this["Email"] = value; }
+        }
+
+        [ConfigurationProperty("IsEnabledCall", DefaultValue = false)]
+        public bool IsEnabledCall
+        {
+            get { return (bool)this["IsEnabledCall"]; }
+            set { this["IsEnabledCall"] = value; }
         }
     }
 }

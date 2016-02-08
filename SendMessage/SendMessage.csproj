@@ -61,25 +61,24 @@
     <Compile Include="Config\Modem\ModemElement.cs" />
     <Compile Include="Config\MailBox\MailboxElement.cs" />
     <Compile Include="HexEncoding.cs" />
-    <Compile Include="IReceiver.cs" />
+    <Compile Include="Receiver\IReceiver.cs" />
     <Compile Include="Notice.cs" />
-    <Compile Include="Receiver.cs" />
+    <Compile Include="Receiver\Receiver.cs" />
     <Compile Include="RussiaLanguage.cs" />
-    <Compile Include="Sender.cs" />
+    <Compile Include="Sender\Sender.cs" />
     <Compile Include="SendMessageEventArgs.cs" />
-    <Compile Include="GSM\SMS\SMS.cs" />
-    <Compile Include="GSM\Modem\ATCommand.cs" />
-    <Compile Include="GSM\Modem\COMPort.cs" />
+    <Compile Include="Receiver\Contact\Contact.cs" />
+    <Compile Include="Sender\Modem\ATCommand.cs" />
+    <Compile Include="Sender\Modem\COMPort.cs" />
     <Compile Include="Config\Config.cs" />
     <Compile Include="Core.cs" />
-    <Compile Include="GSM\Modem\Modem.cs" />
-    <Compile Include="ISender.cs" />
+    <Compile Include="Sender\Modem\Modem.cs" />
+    <Compile Include="Sender\ISender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GSM\Modem\ReceiveData.cs" />
+    <Compile Include="Sender\Modem\ReceiveData.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Email\Address\" />
-    <Folder Include="Email\Mailbox\" />
+    <Folder Include="Sender\Mailbox\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -7,7 +7,6 @@ namespace SendMessage
 {
     public interface IReceiver
     {
-        string Address { get; set; }
         string Description { get; set; }
     }
 }
