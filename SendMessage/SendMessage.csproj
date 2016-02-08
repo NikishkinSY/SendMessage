@@ -56,12 +56,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\Email\AddressElement.cs" />
-    <Compile Include="Config\GSM\CallElement.cs" />
-    <Compile Include="Config\GSM\COMPortElement.cs" />
-    <Compile Include="Config\GSM\SMSElement.cs" />
-    <Compile Include="Config\GSM\ModemElement.cs" />
-    <Compile Include="Config\Email\MailboxElement.cs" />
+    <Compile Include="Config\Contact\ContactElement.cs" />
+    <Compile Include="Config\Modem\COMPortElement.cs" />
+    <Compile Include="Config\Modem\ModemElement.cs" />
+    <Compile Include="Config\MailBox\MailboxElement.cs" />
     <Compile Include="HexEncoding.cs" />
     <Compile Include="IReceiver.cs" />
     <Compile Include="Notice.cs" />
@@ -73,8 +71,6 @@
     <Compile Include="GSM\Modem\ATCommand.cs" />
     <Compile Include="GSM\Modem\COMPort.cs" />
     <Compile Include="Config\Config.cs" />
-    <Compile Include="Config\Email\Email.cs" />
-    <Compile Include="Config\GSM\SMS.cs" />
     <Compile Include="Core.cs" />
     <Compile Include="GSM\Modem\Modem.cs" />
     <Compile Include="ISender.cs" />

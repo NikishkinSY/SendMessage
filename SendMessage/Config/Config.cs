@@ -16,12 +16,51 @@ namespace SendMessage
             SendMessageConfig.settings = ConfigurationManager.GetSection("SendMessage") as SendMessageConfig;
         }
 
-        [ConfigurationProperty("GSM")]
-        public GSMElement GSM { get { return (GSMElement)base["GSM"]; } }
-        [ConfigurationProperty("Email")]
-        public EmailElement Email { get { return (EmailElement)base["Email"]; } }
+        [ConfigurationProperty("Modems")]
+        public ModemElementCollection Modems { get { return (ModemElementCollection)base["Modems"]; } }
+        [ConfigurationProperty("Mailboxes")]
+        public MailboxElementCollection Mailboxes { get { return (MailboxElementCollection)base["Mailboxes"]; } }
+        [ConfigurationProperty("Contacts")]
+        public ContactElementCollection Contacts { get { return (ContactElementCollection)base["Contacts"]; } }
     }
 
+    class ModemElementCollection : ConfigurationElementCollection
+    {
+        protected override ConfigurationElement CreateNewElement()
+        {
+            return new ModemElement();
+        }
 
-    
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            return ((ModemElement)element).PortName;
+        }
+    }
+
+    class MailboxElementCollection : ConfigurationElementCollection
+    {
+        protected override ConfigurationElement CreateNewElement()
+        {
+            return new MailboxElement();
+        }
+
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            return ((MailboxElement)element).From;
+        }
+    }
+
+    class ContactElementCollection : ConfigurationElementCollection
+    {
+        protected override ConfigurationElement CreateNewElement()
+        {
+            return new ContactElement();
+        }
+
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            return ((ContactElement)element).Description;
+        }
+    }
+
 }
