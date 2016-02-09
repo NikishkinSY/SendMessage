@@ -57,6 +57,18 @@ namespace SendMessage
 
             return atCommandRequestSMS;
         }
+        public static ATCommand SMSMessagePDUMode(string receiver, string messsage, TimeSpan waitForATCommand, int timesToRepeat)
+        {
+            string atRequestSMS = String.Format("AT+CMGS={0}", receiver);
+            ATCommand atCommandRequestSMS = new ATCommand(atRequestSMS, ATResponse.SMS, waitForATCommand, timesToRepeat);
+
+            string atSendSMS = String.Format("{0}{1}", messsage, (char)26);
+            ATCommand atCommandSendSMS = new ATCommand(atSendSMS, ATResponse.OK, waitForATCommand, timesToRepeat);
+
+            atCommandRequestSMS.NestedATCommands.Add(atCommandSendSMS);
+
+            return atCommandRequestSMS;
+        }
         public static ATCommand MessageMode(TimeSpan waitForATCommand, int timesToRepeat)
         {
             return new ATCommand("AT+CMGF=1", ATResponse.OK, waitForATCommand, timesToRepeat);

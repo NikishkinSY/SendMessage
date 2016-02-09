@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -80,8 +81,8 @@ namespace SendMessage
 
         public override bool SendMessage(Notice notice)
         {
-            string UTF16Message = RussiaLanguage.ConvertRusToUCS2(notice.Message);
-            return SendATCommand(ATCommand.SMSMessage(notice.Contact.PhoneNumber, UTF16Message, this.WaitForATCommand, this.TimesToRepeatATCommand));
+            //string UTF16Message = RussiaLanguage.ConvertRusToUCS2(notice.Message);
+            return SendATCommand(ATCommand.SMSMessage(notice.Contact.PhoneNumber, notice.Message, this.WaitForATCommand, this.TimesToRepeatATCommand));
         }
         public override void Start()
         {
@@ -203,7 +204,7 @@ namespace SendMessage
                 IEnumerable<byte[]> ReceiveBytes = COMPort.BytesSplit(data, (byte)'\r', (byte)'\n');
                 foreach (byte[] Bytes in ReceiveBytes)
                 {
-                    ReceiveData receiveData = RecognizeIncomingData(data);
+                    ReceiveData receiveData = RecognizeIncomingData(Bytes);
                     if (receiveData is ReceiveATResponse)
                     {
                         currentATCommandResponse = (receiveData as ReceiveATResponse).ATResponse;
@@ -269,6 +270,18 @@ namespace SendMessage
                         //atResponse = ATResponse.SYSSTART;
                         Init(false);
                     }
+                    else if (IncomingString.Contains("+csca"))
+                    {
+                        //phone number sms-center
+                        //+CSCA: "+79168999100",145
+                        //@"\+csca: ""\+(\d{11})"",\d+"
+                        Regex rgxPhoneNumberSMSCenter = new Regex(@"\+(\d{11})");
+                        Match match = rgxPhoneNumberSMSCenter.Match(IncomingString);
+                        if (match.Success)
+                        {
+                            string test = match.Value;
+                        }
+                    }
                 }
 
                 if (atResponse != ATResponse.UNKNOWN)
@@ -279,25 +292,40 @@ namespace SendMessage
             return RecData;
         }
 
-        internal bool SendATCommand(ATCommand atCommand)
+        List<ATCommand> GetATCommands(ATCommand atCommand)
         {
-            queuedLockSendATCommand.Enter();
-
-            List<bool> results = new List<bool>();
+            List<ATCommand> atCommands = new List<ATCommand>();
             if (atCommand != null)
             {
-                bool result = _SendATCommand(atCommand);
-                results.Add(result);
-                if (result && atCommand.ContainNestedATCommands)
+                atCommands.Add(atCommand);
+                if (atCommand.ContainNestedATCommands)
+                {
                     foreach (ATCommand _atCommand in atCommand.NestedATCommands)
-                        results.Add(SendATCommand(_atCommand));
+                        atCommands.AddRange(GetATCommands(_atCommand));
+                }
             }
+            return atCommands;
+        }
 
-            bool returnResult = results.Count > 0 && !results.Contains(false);
+        internal bool SendATCommand(ATCommand atCommand)
+        {
+            try
+            {
+                queuedLockSendATCommand.Enter();
 
-            queuedLockSendATCommand.Exit();
-
-            return returnResult;
+                List<bool> results = new List<bool>();
+                foreach (ATCommand _atCommand in GetATCommands(atCommand))
+                {
+                    bool result = _SendATCommand(_atCommand);
+                    if (!result)
+                        return false;
+                }
+                return true;
+            }
+            finally
+            {
+                queuedLockSendATCommand.Exit();
+            }
         }
         bool _SendATCommand(ATCommand atCommand)
         {
