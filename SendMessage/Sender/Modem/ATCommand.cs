@@ -53,14 +53,14 @@ namespace SendMessage
             string atRequest = String.Format("AT+CMGF=1{0}", Environment.NewLine);
             return new ATCommand(atRequest, ATResponse.OK, waitForATCommand, timesToRepeat);
         }
-        public static ATCommand Ping(TimeSpan waitForATCommand, int timesToRepeat)
+        public static ATCommand Ping()
         {
             string atRequest = String.Format("AT{0}", Environment.NewLine);
-            return new ATCommand(atRequest, ATResponse.OK, waitForATCommand, timesToRepeat);
+            return new ATCommand(atRequest, ATResponse.OK, new TimeSpan(0,0,2), 2);
         }
-        public static ATCommand ATResetModem(TimeSpan waitForATCommand, int timesToRepeat)
+        public static ATCommand ATResetModem()
         {
-            return new ATCommand("AT+CFUN=1,1", ATResponse.SYSSTART, waitForATCommand, timesToRepeat);
+            return new ATCommand("AT+CFUN=1,1", ATResponse.SYSSTART, new TimeSpan(0,1,0), 1);
         }
         public static ATCommand ATResetSettings(TimeSpan waitForATCommand, int timesToRepeat)
         {

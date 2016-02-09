@@ -10,9 +10,9 @@ namespace SendMessage
 {
     public static class Core
     {
-        static ConcurrentBag<Modem> Modems { get; set; }
+        internal static ConcurrentBag<Modem> Modems { get; set; }
         //static ConcurrentBag<MailBox> MailBoxs { get; set; }
-        static ConcurrentBag<Contact> Contacts { get; set; }
+        internal static ConcurrentBag<Contact> Contacts { get; set; }
         //add calls
         /// <summary>
         /// All event from send messgae service
@@ -68,6 +68,7 @@ namespace SendMessage
         {
             //init core
             Core.Init();
+            Scheduler.StartScheluder();
             //start gsmModems
             foreach (Modem gsmModem in Modems)
                 gsmModem.Start();
@@ -82,6 +83,7 @@ namespace SendMessage
             cancellationTokenProccessSMSNotices = true;
             foreach (Modem gsmModem in Modems)
                 gsmModem.Stop();
+            Scheduler.ShutdownScheluder(false);
         }
         /// <summary>
         /// Send message

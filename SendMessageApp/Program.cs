@@ -13,7 +13,6 @@ namespace SendMessageApp
         static ConcurrentBag<Notice> notices = new ConcurrentBag<Notice>();
         static void Main(string[] args)
         {
-            
             Core.SendMessageEvent += Core_SendMessageEvent;
             Core.Start();
             foreach (Notice notice in Core.SendMessage("OPC BOOM!"))
@@ -42,7 +41,9 @@ namespace SendMessageApp
                 }
             }
             else
+            {
                 Console.WriteLine(e);
+            }
         }
     }
 }

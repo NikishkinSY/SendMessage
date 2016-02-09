@@ -34,6 +34,18 @@
       <HintPath>..\packages\AutoMapper.4.1.1\lib\net40\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Common.Logging, Version=3.0.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.0.0\lib\net40\Common.Logging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Common.Logging.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.0.0\lib\net40\Common.Logging.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Quartz, Version=2.3.3.0, Culture=neutral, PublicKeyToken=f6b8c98a402cc8a4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Quartz.2.3.3\lib\net40\Quartz.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -60,13 +72,16 @@
     <Compile Include="Config\Modem\COMPortElement.cs" />
     <Compile Include="Config\Modem\ModemElement.cs" />
     <Compile Include="Config\MailBox\MailboxElement.cs" />
-    <Compile Include="HexEncoding.cs" />
+    <Compile Include="Modules\HexEncoding.cs" />
+    <Compile Include="Modules\Scheduler\PingModemJob.cs" />
+    <Compile Include="Modules\Scheduler\ResetModemJob.cs" />
+    <Compile Include="Modules\Scheduler\Scheduler.cs" />
     <Compile Include="Receiver\IReceiver.cs" />
-    <Compile Include="Notice.cs" />
+    <Compile Include="Modules\Notice.cs" />
     <Compile Include="Receiver\Receiver.cs" />
-    <Compile Include="RussiaLanguage.cs" />
+    <Compile Include="Modules\RussiaLanguage.cs" />
     <Compile Include="Sender\Sender.cs" />
-    <Compile Include="SendMessageEventArgs.cs" />
+    <Compile Include="Modules\SendMessageEventArgs.cs" />
     <Compile Include="Receiver\Contact\Contact.cs" />
     <Compile Include="Sender\Modem\ATCommand.cs" />
     <Compile Include="Sender\Modem\COMPort.cs" />
@@ -81,6 +96,9 @@
     <Folder Include="Sender\Mailbox\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="job_scheduling_data_2_0.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

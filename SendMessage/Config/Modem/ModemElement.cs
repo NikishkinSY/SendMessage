@@ -44,5 +44,22 @@ namespace SendMessage
             get { return (string)this["InitATCommands"]; }
             set { this["InitATCommands"] = value; }
         }
+
+        [ConfigurationProperty("PeriodReboot", DefaultValue = "00:01:00")]
+        [TimeSpanValidator(MinValueString = "00:01:00", MaxValueString = "356.00:00:00", ExcludeRange = false)]
+        public TimeSpan PeriodReboot
+        {
+            get { return (TimeSpan)this["PeriodReboot"]; }
+            set { this["PeriodReboot"] = value; }
+        }
+
+        [ConfigurationProperty("PeriodPing", DefaultValue = "00:10:00")]
+        [TimeSpanValidator(MinValueString = "00:00:05", MaxValueString = "356.00:00:00", ExcludeRange = false)]
+        public TimeSpan PeriodPing
+        {
+            get { return (TimeSpan)this["PeriodPing"]; }
+            set { this["PeriodPing"] = value; }
+        }
+
     }
 }

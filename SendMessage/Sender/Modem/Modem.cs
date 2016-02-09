@@ -13,13 +13,15 @@ namespace SendMessage
         
         #region Status
         internal bool IsOpen { get { return COMPort != null && COMPort.IsOpen; } }
-        internal bool IsFree { get { return IsOpen && !Initializing && currentATCommandStatus != StatusATCommand.Wait; } }
+        internal bool IsFree { get { return IsOpen && !Initializing && IsEnabled && currentATCommandStatus != StatusATCommand.Wait; } }
         #endregion
 
         //токен для асинхронного открытия порта
         bool cancellationTokenOpenAsync = false;
         //идет инициализация
         bool Initializing = false;
+        //отвечате
+        bool IsEnabled = false;
         //событие всех действий
         internal event EventHandler<SendMessageEventArgs> OnEvent;
         void RiseEvent(object sender, SendMessageEventArgs e)
@@ -45,6 +47,8 @@ namespace SendMessage
         public string InitATCommands { get; set; }
         public TimeSpan WaitForATCommand { get; set; }
         public int TimesToRepeatATCommand { get; set; }
+        public TimeSpan PeriodReboot { get; set; }
+        public TimeSpan PeriodPing { get; set; }
         #endregion
 
         #region helpers send at-command
@@ -69,6 +73,8 @@ namespace SendMessage
             this.InitATCommands = string.Empty;
             this.WaitForATCommand = new TimeSpan(0, 0, 20);
             this.TimesToRepeatATCommand = 1;
+            this.PeriodReboot = new TimeSpan(1, 0, 0, 0);
+            this.PeriodPing = new TimeSpan(0, 10, 0);
         }
 
         public override bool SendMessage(Notice notice)
@@ -81,10 +87,22 @@ namespace SendMessage
         public override void Start()
         {
             OpenPeriodicAsync();
+            Scheduler.AddPingJob(this, DateTime.Now);
+            //Scheduler.AddRebootJob(this, DateTime.Now.Add(PeriodReset));
         }
         public override bool Stop()
         {
             return Close();
+        }
+
+        internal bool RebootModem()
+        {
+            return SendATCommand(ATCommand.ATResetModem());
+        }
+        internal void PingModem()
+        {
+            this.IsEnabled = SendATCommand(ATCommand.Ping());
+            Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!! " + this.IsEnabled);
         }
 
         bool Init(bool WithReboot)
