@@ -7,6 +7,7 @@ namespace SendMessage
 {
     public class SendMessageEventArgs : EventArgs
     {
+        public DateTime DateTime { get; set; }
         public EventType EventType { get; set; }
         public MessageType MessageType { get; set; }
         public string Message { get; set; }
@@ -14,6 +15,7 @@ namespace SendMessage
 
         public SendMessageEventArgs(EventType eventType, MessageType messageType, string message, object data)
         {
+            this.DateTime = DateTime.Now;
             this.EventType = eventType;
             this.MessageType = messageType;
             this.Message = message;
@@ -21,6 +23,7 @@ namespace SendMessage
         }
         public SendMessageEventArgs(EventType eventType, MessageType messageType, string message)
         {
+            this.DateTime = DateTime.Now;
             this.EventType = eventType;
             this.MessageType = messageType;
             this.Message = message;
@@ -28,8 +31,8 @@ namespace SendMessage
 
         public override string ToString()
         {
-            var message = String.Format("EventType: {0}, MessageType:{1}, Message:\"{2}\"", EventType, MessageType, Message);
-            message += Data != null ? String.Format(", Data:({0})", Data) : string.Empty;
+            var message = String.Format("{0} {1} {2} \"{3}\"", DateTime, EventType, MessageType, Message);
+            message += Data != null ? String.Format(" ({0})", Data) : string.Empty;
             return message;
 
         }

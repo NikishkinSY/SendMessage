@@ -7,19 +7,21 @@ namespace SendMessage
 {
     public interface INotice
     {
+        DateTime DateTime { get; set; }
         string Message { get; set; }
         Contact Contact { get; set; }
         NoticeType Type { get; }
     }
     public class Notice: INotice
     {
+        public DateTime DateTime { get; set; }
         public string Message { get; set; }
         public Contact Contact { get; set; }
         public virtual NoticeType Type { get; }
 
         public override string ToString()
         {
-            return String.Format("Type:{0}, Contact:({1}), Message:{2}", Type, Contact, Message);
+            return String.Format("{0} {1} ({2}) \"{3}\"", DateTime.ToShortTimeString(), Type, Contact, Message);
         }
     }
 
@@ -29,6 +31,7 @@ namespace SendMessage
 
         internal SMSNotice(string message, Contact contact)
         {
+            this.DateTime = DateTime.Now;
             this.Message = message;
             this.Contact = contact;
         }

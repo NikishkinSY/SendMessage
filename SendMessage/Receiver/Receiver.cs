@@ -11,7 +11,7 @@ namespace SendMessage
 
         public override string ToString()
         {
-            return String.Format("Description:{0}", Description);
+            return String.Format("{0}", Description);
         }
     }
 }

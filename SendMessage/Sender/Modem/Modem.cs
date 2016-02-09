@@ -44,7 +44,7 @@ namespace SendMessage
         }
         
         public TimeSpan PauseBetweenOpen { get; set; }
-        public string InitATCommands { get; set; }
+        public IEnumerable<ATCommand> InitATCommands { get; set; }
         public TimeSpan WaitForATCommand { get; set; }
         public int TimesToRepeatATCommand { get; set; }
         public TimeSpan PeriodReboot { get; set; }
@@ -59,7 +59,8 @@ namespace SendMessage
         #endregion
 
         #region locking Objects
-        object lockSendATCommand = new object();
+        QueuedLock queuedLockSendATCommand = new QueuedLock();
+        object _lockSendATCommand = new object();
         object lockOpenAsync = new object();
         object lockOpenClose = new object();
         #endregion
@@ -70,7 +71,7 @@ namespace SendMessage
             this.COMPort.OnDataReceived += GSMModem_OnDataReceived;
 
             this.PauseBetweenOpen = new TimeSpan(0, 0, 10);
-            this.InitATCommands = string.Empty;
+            this.InitATCommands = new List<ATCommand>();
             this.WaitForATCommand = new TimeSpan(0, 0, 20);
             this.TimesToRepeatATCommand = 1;
             this.PeriodReboot = new TimeSpan(1, 0, 0, 0);
@@ -79,16 +80,14 @@ namespace SendMessage
 
         public override bool SendMessage(Notice notice)
         {
-            //string UTF16Message = RussiaLanguage.ConvertRusToUCS2(notice.Message);
-            SendATCommands(ATCommand.SMSMessage(notice.Contact.PhoneNumber, notice.Message, this.WaitForATCommand, this.TimesToRepeatATCommand));
-            RiseEvent(this, new SendMessageEventArgs(EventType.Tx, MessageType.SMS, "message sent", notice));
-            return true;
+            string UTF16Message = RussiaLanguage.ConvertRusToUCS2(notice.Message);
+            return SendATCommand(ATCommand.SMSMessage(notice.Contact.PhoneNumber, UTF16Message, this.WaitForATCommand, this.TimesToRepeatATCommand));
         }
         public override void Start()
         {
             OpenPeriodicAsync();
             Scheduler.AddPingJob(this, DateTime.Now);
-            //Scheduler.AddRebootJob(this, DateTime.Now.Add(PeriodReset));
+            Scheduler.AddRebootJob(this, DateTime.Now.Add(PeriodReboot));
         }
         public override bool Stop()
         {
@@ -102,21 +101,15 @@ namespace SendMessage
         internal void PingModem()
         {
             this.IsEnabled = SendATCommand(ATCommand.Ping());
-            Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!! " + this.IsEnabled);
         }
 
         bool Init(bool WithReboot)
         {
             Initializing = true;
-            Queue<ATCommand> atCommands = new Queue<ATCommand>();
-            if (WithReboot)
-                atCommands.Enqueue(ATCommand.ATResetSettings(WaitForATCommand, TimesToRepeatATCommand));
             
-            foreach (string command in InitATCommands.Split(';'))
-                if (!string.IsNullOrEmpty(command))
-                    atCommands.Enqueue(new ATCommand(command, ATResponse.OK, this.WaitForATCommand, this.TimesToRepeatATCommand));
-
-            SendATCommands(atCommands);
+            foreach (ATCommand atCommand in InitATCommands)
+                SendATCommand(atCommand);
+            
             Initializing = false;
             RiseEvent(this, new SendMessageEventArgs(EventType.Sys, MessageType.Note, "modem initialized"));
             return true;
@@ -286,24 +279,33 @@ namespace SendMessage
             return RecData;
         }
 
-        bool SendATCommands(Queue<ATCommand> atCommands)
+        internal bool SendATCommand(ATCommand atCommand)
         {
-            while (atCommands.Count > 0)
+            queuedLockSendATCommand.Enter();
+
+            List<bool> results = new List<bool>();
+            if (atCommand != null)
             {
-                ATCommand atCommand = atCommands.Dequeue();
-                bool result = SendATCommand(atCommand);
-                if (!result)
-                    return false;
+                bool result = _SendATCommand(atCommand);
+                results.Add(result);
+                if (result && atCommand.ContainNestedATCommands)
+                    foreach (ATCommand _atCommand in atCommand.NestedATCommands)
+                        results.Add(SendATCommand(_atCommand));
             }
-            return true;
+
+            bool returnResult = results.Count > 0 && !results.Contains(false);
+
+            queuedLockSendATCommand.Exit();
+
+            return returnResult;
         }
-        bool SendATCommand(ATCommand atCommand)
+        bool _SendATCommand(ATCommand atCommand)
         {
-            lock (lockSendATCommand)
+            lock (_lockSendATCommand)
             {
                 currentATCommandStatus = StatusATCommand.Wait;
                 currentATCommandResponse = ATResponse.UNKNOWN;
-                expectedATCommandResponse = atCommand.ATResponse;
+                expectedATCommandResponse = atCommand.ExpectedATResponse;
 
                 int TimesToRepeat = atCommand.TimesToRepeat;
                 bool result = false;
@@ -314,7 +316,7 @@ namespace SendMessage
                     //Ожидаем ответа
                     //ожидаем таймаута или события о получении верного ответа из метода Event_Note (выше)
                     waitForATCommandResponse.Reset();
-                    waitForATCommandResponse.WaitOne(atCommand.WaitForAnswer);
+                    waitForATCommandResponse.WaitOne(atCommand.WaitForResponse);
                     if (currentATCommandStatus == StatusATCommand.Done)
                     {
                         result = true;

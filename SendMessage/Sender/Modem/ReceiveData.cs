@@ -41,7 +41,7 @@ namespace SendMessage
 
         public override string ToString()
         {
-            return String.Format("Data:{0}", HexBytes);
+            return String.Format("{0}", HexBytes);
         }
     }
 
@@ -57,7 +57,7 @@ namespace SendMessage
 
         public override string ToString()
         {
-            return String.Format("Data:{0}, AT:{1}", HexBytes, ATResponse);
+            return String.Format("{0} {1}", HexBytes, ATResponse);
         }
     }
 }

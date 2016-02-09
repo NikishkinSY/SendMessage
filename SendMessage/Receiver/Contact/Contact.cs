@@ -13,7 +13,7 @@ namespace SendMessage
 
         public override string ToString()
         {
-            return String.Format("Description:{0}, Address:{1}, Email:{2}, IsEnabledCall:{3}", Description, PhoneNumber, Email, IsEnabledCall);
+            return String.Format("{0} {1} {2} {3}", Description, PhoneNumber, Email, IsEnabledCall);
         }
     }
 }

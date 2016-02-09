@@ -8,55 +8,62 @@ namespace SendMessage
     public class ATCommand
     {
         public string ATRequest { get; set; }
-        public ATResponse ATResponse { get; set; }
+        public ATResponse ExpectedATResponse { get; set; }
         public int TimesToRepeat { get; set; }
-        public TimeSpan WaitForAnswer { get; set; }
+        public TimeSpan WaitForResponse { get; set; }
         public bool LineBreak { get; set; }
         public TimeSpan DelayBetweenRepeats { get; set; }
-        
+        public List<ATCommand> NestedATCommands { get; set; }
+
+        #region help properties
+        public bool ContainNestedATCommands { get { return NestedATCommands.Count > 0; } }
+        #endregion
+
+        public ATCommand()
+        {
+            this.Init();
+        }
+
         public ATCommand(string atRequest, ATResponse atResponse, TimeSpan waitForAnswer, int timesToRepeat)
         {
             this.Init();
             this.ATRequest = atRequest;
-            this.ATResponse = atResponse;
-            this.WaitForAnswer = waitForAnswer;
+            this.ExpectedATResponse = atResponse;
+            this.WaitForResponse = waitForAnswer;
             this.TimesToRepeat = timesToRepeat;
         }
 
         public void Init()
         {
             this.ATRequest = "at";
-            this.ATResponse = ATResponse.OK;
+            this.ExpectedATResponse = ATResponse.OK;
             this.TimesToRepeat = 1;
-            this.WaitForAnswer = new TimeSpan(0, 0, 20);
+            this.WaitForResponse = new TimeSpan(0, 0, 20);
             this.DelayBetweenRepeats = new TimeSpan(0, 0, 0);
             this.LineBreak = true;
+            this.NestedATCommands = new List<ATCommand>();
         }
 
         #region AT Commands
-        public static Queue<ATCommand> SMSMessage(string receiver, string messsage, TimeSpan waitForATCommand, int timesToRepeat)
+        public static ATCommand SMSMessage(string receiver, string messsage, TimeSpan waitForATCommand, int timesToRepeat)
         {
-            Queue<ATCommand> atCommands = new Queue<ATCommand>();
-
-            string atRequestSMS = String.Format("AT+CMGS={0}{1}", receiver, Environment.NewLine);
+            string atRequestSMS = String.Format("AT+CMGS={0}", receiver);
             ATCommand atCommandRequestSMS = new ATCommand(atRequestSMS, ATResponse.SMS, waitForATCommand, timesToRepeat);
-            atCommands.Enqueue(atCommandRequestSMS);
 
             string atSendSMS = String.Format("{0}{1}", messsage, (char)26);
             ATCommand atCommandSendSMS = new ATCommand(atSendSMS, ATResponse.OK, waitForATCommand, timesToRepeat);
-            atCommands.Enqueue(atCommandSendSMS);
 
-            return atCommands;
+            atCommandRequestSMS.NestedATCommands.Add(atCommandSendSMS);
+
+            return atCommandRequestSMS;
         }
         public static ATCommand MessageMode(TimeSpan waitForATCommand, int timesToRepeat)
         {
-            string atRequest = String.Format("AT+CMGF=1{0}", Environment.NewLine);
-            return new ATCommand(atRequest, ATResponse.OK, waitForATCommand, timesToRepeat);
+            return new ATCommand("AT+CMGF=1", ATResponse.OK, waitForATCommand, timesToRepeat);
         }
         public static ATCommand Ping()
         {
-            string atRequest = String.Format("AT{0}", Environment.NewLine);
-            return new ATCommand(atRequest, ATResponse.OK, new TimeSpan(0,0,2), 2);
+            return new ATCommand("AT", ATResponse.OK, new TimeSpan(0,0,2), 2);
         }
         public static ATCommand ATResetModem()
         {
@@ -71,7 +78,7 @@ namespace SendMessage
 
         public override string ToString()
         {
-            return String.Format("Request:\"{0}\", ExpResponse:\"{1}\"", ATRequest, ATResponse);
+            return String.Format("\"{0}\" \"{1}\"", ATRequest, ExpectedATResponse);
         }
     }
 

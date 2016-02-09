@@ -37,6 +37,8 @@ namespace SendMessage
             AutoMapper.Mapper.CreateMap<COMPortElement, COMPort>();
             AutoMapper.Mapper.CreateMap<Contact, ContactElement>();
             AutoMapper.Mapper.CreateMap<ContactElement, Contact>();
+            AutoMapper.Mapper.CreateMap<ATCommand, ATCommandElement>();
+            AutoMapper.Mapper.CreateMap<ATCommandElement, ATCommand>();
         }
 
         static void Init()

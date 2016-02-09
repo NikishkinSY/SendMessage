@@ -10,7 +10,10 @@ namespace SendMessage
     {
         [ConfigurationProperty("COMPort")]
         public COMPortElement COMPort { get { return (COMPortElement)base["COMPort"]; } }
-        
+
+        [ConfigurationProperty("InitATCommands")]
+        public InitATCommandElementCollection InitATCommands { get { return (InitATCommandElementCollection)base["InitATCommands"]; } }
+
         //id
         public string PortName { get { return COMPort.PortName; } }
 
@@ -36,13 +39,6 @@ namespace SendMessage
         {
             get { return (TimeSpan)this["WaitForATCommand"]; }
             set { this["WaitForATCommand"] = value; }
-        }
-
-        [ConfigurationProperty("InitATCommands", DefaultValue = "AT+CMGF=1;")]
-        public string InitATCommands
-        {
-            get { return (string)this["InitATCommands"]; }
-            set { this["InitATCommands"] = value; }
         }
 
         [ConfigurationProperty("PeriodReboot", DefaultValue = "00:01:00")]

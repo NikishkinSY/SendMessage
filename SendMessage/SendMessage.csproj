@@ -69,10 +69,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\Contact\ContactElement.cs" />
+    <Compile Include="Config\Modem\ATCommandElement.cs" />
     <Compile Include="Config\Modem\COMPortElement.cs" />
     <Compile Include="Config\Modem\ModemElement.cs" />
     <Compile Include="Config\MailBox\MailboxElement.cs" />
     <Compile Include="Modules\HexEncoding.cs" />
+    <Compile Include="Modules\QueuedLock.cs" />
     <Compile Include="Modules\Scheduler\PingModemJob.cs" />
     <Compile Include="Modules\Scheduler\ResetModemJob.cs" />
     <Compile Include="Modules\Scheduler\Scheduler.cs" />

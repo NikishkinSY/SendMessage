@@ -15,7 +15,7 @@ namespace SendMessageApp
         {
             Core.SendMessageEvent += Core_SendMessageEvent;
             Core.Start();
-            foreach (Notice notice in Core.SendMessage("OPC BOOM!"))
+            foreach (Notice notice in Core.SendMessage("ура!"))
                 notices.Add(notice);
             //Core.SendMessage("OPC BOOM!");
             //Core.SendMessage("SPD BOOM!");
